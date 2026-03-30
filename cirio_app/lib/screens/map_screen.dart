@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import '../data/routes_data.dart';
+import '../services/routing_service.dart';
 
 class MapScreen extends StatefulWidget {
     const MapScreen({super.key});
@@ -15,6 +17,8 @@ class _MapScreenState extends State<MapScreen> {
 
   LatLng coords = LatLng(-1.4561,-48.5044);
 
+  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,7 +27,13 @@ class _MapScreenState extends State<MapScreen> {
         options: MapOptions(initialCenter: coords, initialZoom: 15.0),
         children: [TileLayer(
           urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-          userAgentPackageName: "com.example.cirio_app",)],
-        ),);
+          userAgentPackageName: "com.example.cirio_app",),
+          MarkerLayer(markers: [
+           Marker(point: coords, 
+           child:  Icon(Icons.location_on, color: Colors.red, size: 40,))
+          ])
+        ],
+        ),
+      );
   } 
 }
