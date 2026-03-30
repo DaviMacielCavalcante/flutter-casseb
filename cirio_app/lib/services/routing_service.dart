@@ -16,7 +16,7 @@ class RoutingService {
 
       final points = jsonResponse['routes'][0]['geometry']['coordinates'];
 
-      List<LatLng> routesCoords = points.map((item) => LatLng(item[1].toDouble(), item[0].toDouble())).toList();
+      List<LatLng> routesCoords = points.map<LatLng>((item) => LatLng(item[1].toDouble(), item[0].toDouble())).toList();
 
       return routesCoords;
 

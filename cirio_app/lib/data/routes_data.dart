@@ -7,5 +7,5 @@ class RoutesData {
   static final LatLng catedralSe = LatLng(-1.4561,-48.5044);
 
   static final List<LatLng> rotaCirio = [];
-  static final List<LatLng> rotaTransaladacao = [];
+  static final List<LatLng> rotaTrasaladacao = [];
 }
