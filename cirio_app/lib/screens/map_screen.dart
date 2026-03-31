@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_animations/flutter_map_animations.dart';
 import 'package:latlong2/latlong.dart';
 import '../data/routes_data.dart';
 import '../services/routing_service.dart';
@@ -14,15 +15,36 @@ class MapScreen extends StatefulWidget {
   }
 }
 
-class _MapScreenState extends State<MapScreen> {
+class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
 
   List<LatLng> rotaAtual = [];
+
+  LatLng? userLocation;
+
+  late final AnimatedMapController mapController = AnimatedMapController(vsync: this);
+
+  _loadUserLocation() async {
+    var userLocation = await LocationService.getUserRoute();
+
+    setState(() {
+      this.userLocation = userLocation;
+    });
+
+    mapController.animateTo(dest: userLocation!, zoom: 15.0);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserLocation();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text("Círio de Nazaré"),),
       body: FlutterMap(
+        mapController: mapController.mapController,
         options: MapOptions(initialCenter: RoutesData.catedralSe, initialZoom: 15.0),
         children: [
           TileLayer(urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
@@ -74,7 +96,13 @@ class _MapScreenState extends State<MapScreen> {
               ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Praça da República")));
             },
             child: Icon(Icons.park_outlined, color: const Color.fromARGB(255, 86, 161, 0), size: 40,),
-           ))
+           )),
+           if (userLocation != null) 
+              Marker(point: userLocation!, 
+              child: Icon(
+                Icons.person_outline_outlined, color: Colors.blue,
+                size: 40
+              ))
           ])
         ],
         ),
@@ -88,6 +116,13 @@ class _MapScreenState extends State<MapScreen> {
             rotaAtual = rota ?? [];
           });
 
+          mapController.animatedFitCamera(
+            cameraFit: CameraFit.bounds(
+              bounds: LatLngBounds.fromPoints(rotaAtual),
+              padding: EdgeInsets.all(50)
+            )
+          );
+
         }, child: Text("Rota do Círio"),),
         ElevatedButton(onPressed:() async {
 
@@ -96,6 +131,13 @@ class _MapScreenState extends State<MapScreen> {
           setState(() {
             rotaAtual = rota ?? [];
           });
+
+          mapController.animatedFitCamera(
+            cameraFit: CameraFit.bounds(
+              bounds: LatLngBounds.fromPoints(rotaAtual),
+              padding: EdgeInsets.all(50)
+            )
+          );
 
         }, child: Text("Rota da Trasladação"),),
         ElevatedButton(onPressed:() async {
@@ -109,6 +151,13 @@ class _MapScreenState extends State<MapScreen> {
             setState(() {
               rotaAtual = rotaComeco ?? [];
             });
+
+            mapController.animatedFitCamera(
+              cameraFit: CameraFit.bounds(
+                bounds: LatLngBounds.fromPoints(rotaAtual),
+                padding: EdgeInsets.all(50)
+              )
+            );
           }          
 
         }, child: Text("Rota para o ínicio do trajeto"),),

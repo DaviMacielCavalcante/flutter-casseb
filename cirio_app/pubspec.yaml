@@ -42,6 +42,7 @@ dev_dependencies:
   latlong2: ^0.9.1
   geolocator: ^13.0.2
   http: ^1.2.2
+  flutter_map_animations: ^0.7.1
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
