@@ -1,3 +1,4 @@
+import 'package:cirio_app/data/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_animations/flutter_map_animations.dart';
@@ -23,8 +24,12 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
 
   late final AnimatedMapController mapController = AnimatedMapController(vsync: this);
 
+  int selectBtn = -1; // Nenhum botão selecionado
+
   _loadUserLocation() async {
     var userLocation = await LocationService.getUserRoute();
+
+    if (!mounted) return;
 
     setState(() {
       this.userLocation = userLocation;
@@ -39,10 +44,52 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     _loadUserLocation();
   }
 
+  Widget routeBtn({required IconData icon, required String label, required int btnIndex, required VoidCallback callBack}) {
+
+    bool selected = selectBtn == btnIndex;
+
+    return GestureDetector(
+      onTap: callBack,
+      child: Container(
+          decoration: BoxDecoration(
+            color: selected ? AppTheme.primary : Colors.transparent,
+            border: selected ? Border.all(color: AppTheme.secondary, width: 1.5) : null,
+            borderRadius: BorderRadius.circular(12)
+          ),
+          padding: EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 10
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
+                color: selected ? AppTheme.onPrimary : AppTheme.primary,
+                size: 24,
+              ),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 11,
+                  color: selected ? AppTheme.onPrimary : AppTheme.primary
+                ),
+              )
+            ],
+          ),
+        ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Círio de Nazaré"),),
+      appBar: AppBar(
+        title: Text("Círio de Nazaré"),
+        centerTitle: true,
+        backgroundColor: AppTheme.primary,
+        foregroundColor: AppTheme.onPrimary,
+      ),
       body: FlutterMap(
         mapController: mapController.mapController,
         options: MapOptions(initialCenter: RoutesData.catedralSe, initialZoom: 15.0),
@@ -108,59 +155,92 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
         ),
       bottomNavigationBar: Row(
         children: [
-        ElevatedButton(onPressed: () async {
+        Expanded(child: 
+          routeBtn(
+            callBack: () async {
 
-          final rota = await RoutingService.getRoutes(RoutesData.catedralSe, RoutesData.basilica);
+              setState(() {
+                selectBtn = 0;
+              });
 
-          setState(() {
-            rotaAtual = rota ?? [];
-          });
+              final rota = await RoutingService.getRoutes(RoutesData.catedralSe, RoutesData.basilica);
 
-          mapController.animatedFitCamera(
-            cameraFit: CameraFit.bounds(
-              bounds: LatLngBounds.fromPoints(rotaAtual),
-              padding: EdgeInsets.all(50)
-            )
-          );
+              setState(() {
+                rotaAtual = rota ?? [];
+                selectBtn = 0;
+              });
 
-        }, child: Text("Rota do Círio"),),
-        ElevatedButton(onPressed:() async {
+              mapController.animatedFitCamera(
+                cameraFit: CameraFit.bounds(
+                  bounds: LatLngBounds.fromPoints(rotaAtual),
+                  padding: EdgeInsets.all(50)
+                )
+              );
 
-          final rota = await RoutingService.getRoutes(RoutesData.colegioGentil, RoutesData.catedralSe);
+            }, label: "Rota do Círio",
+            icon: Icons.map,
+            btnIndex: 0
+          )
+        ),
+        Expanded(child: 
+          routeBtn(
+            callBack:() async {
 
-          setState(() {
-            rotaAtual = rota ?? [];
-          });
+              setState(() {
+              selectBtn = 1;
+              });
 
-          mapController.animatedFitCamera(
-            cameraFit: CameraFit.bounds(
-              bounds: LatLngBounds.fromPoints(rotaAtual),
-              padding: EdgeInsets.all(50)
-            )
-          );
+              final rota = await RoutingService.getRoutes(RoutesData.colegioGentil, RoutesData.catedralSe);
 
-        }, child: Text("Rota da Trasladação"),),
-        ElevatedButton(onPressed:() async {
+              setState(() {
+                rotaAtual = rota ?? [];
+              });
 
-          final localizacao = await LocationService.getUserRoute();
+              mapController.animatedFitCamera(
+                cameraFit: CameraFit.bounds(
+                  bounds: LatLngBounds.fromPoints(rotaAtual),
+                  padding: EdgeInsets.all(50)
+                )
+              );
 
-          if (localizacao != null) {
+            }, 
+            label: "Rota da Trasladação",
+            icon: Icons.auto_fix_off,
+            btnIndex: 1
+          )
+        ),
+        Expanded(child: 
+          routeBtn(
+            callBack:() async {
 
-            final rotaComeco = await RoutingService.getRoutes(localizacao, RoutesData.catedralSe);
+              setState(() {
+              selectBtn = 2;
+              });
 
-            setState(() {
-              rotaAtual = rotaComeco ?? [];
-            });
+              final localizacao = await LocationService.getUserRoute();
 
-            mapController.animatedFitCamera(
-              cameraFit: CameraFit.bounds(
-                bounds: LatLngBounds.fromPoints(rotaAtual),
-                padding: EdgeInsets.all(50)
-              )
-            );
-          }          
+              if (localizacao != null) {
 
-        }, child: Text("Rota para o ínicio do trajeto"),),
+                final rotaComeco = await RoutingService.getRoutes(localizacao, RoutesData.catedralSe);
+
+                setState(() {
+                  rotaAtual = rotaComeco ?? [];
+                  selectBtn = 2;
+                });
+
+                mapController.animatedFitCamera(
+                  cameraFit: CameraFit.bounds(
+                    bounds: LatLngBounds.fromPoints(rotaAtual),
+                    padding: EdgeInsets.all(50)
+                  )
+                );
+              }   
+          }, 
+          label: "Rota para o ínicio do trajeto",
+          icon: Icons.route,
+          btnIndex: 2
+          )
+        ),
       ]
       ),
       );
