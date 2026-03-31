@@ -16,8 +16,6 @@ class MapScreen extends StatefulWidget {
 
 class _MapScreenState extends State<MapScreen> {
 
-  LatLng coords = LatLng(-1.4561,-48.5044);
-
   List<LatLng> rotaAtual = [];
 
   @override
@@ -25,7 +23,7 @@ class _MapScreenState extends State<MapScreen> {
     return Scaffold(
       appBar: AppBar(title: Text("Círio de Nazaré"),),
       body: FlutterMap(
-        options: MapOptions(initialCenter: coords, initialZoom: 15.0),
+        options: MapOptions(initialCenter: RoutesData.catedralSe, initialZoom: 15.0),
         children: [
           TileLayer(urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
           userAgentPackageName: "com.example.cirio_app",),
@@ -33,8 +31,50 @@ class _MapScreenState extends State<MapScreen> {
           color: Colors.blue, strokeWidth: 5.0
           )],),
           MarkerLayer(markers: [
-           Marker(point: coords, 
-           child:  Icon(Icons.location_on, color: Colors.red, size: 40,))
+           Marker(point: RoutesData.catedralSe, 
+           child: GestureDetector(
+            onTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text("Catedral da Sé - Início do Círio"))
+              );
+            },
+            child: Icon(Icons.location_on, color: Colors.deepOrange, size: 40,),
+           )),
+           Marker(point: RoutesData.verOPeso, 
+           child:  GestureDetector(
+            onTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Mercado do Ver-o-Peso")));
+            },
+            child: Icon(Icons.store_outlined, color: Colors.blueAccent, size: 40,),
+           )),
+           Marker(point: RoutesData.basilica, 
+           child:  GestureDetector(
+            onTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Basílica de Nazaré - Destino do Círio")));
+            },
+            child: Icon(Icons.church_outlined, color: const Color.fromARGB(255, 133, 80, 0), size: 40,),
+           )),
+           Marker(point: RoutesData.colegioGentil, 
+           child: GestureDetector(
+            onTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Colégio Gentil")));
+            },
+            child: Icon(Icons.school_outlined, color: Colors.blue, size: 40,),
+           )),
+           Marker(point: RoutesData.estacaoDocas, 
+           child:  GestureDetector(
+            onTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Estação das Docas")));
+            },
+            child: Icon(Icons.food_bank_outlined, color: const Color.fromARGB(255, 190, 26, 14), size: 40,),
+           )),
+           Marker(point: RoutesData.pracaRepublica, 
+           child: GestureDetector(
+            onTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Praça da República")));
+            },
+            child: Icon(Icons.park_outlined, color: const Color.fromARGB(255, 86, 161, 0), size: 40,),
+           ))
           ])
         ],
         ),
