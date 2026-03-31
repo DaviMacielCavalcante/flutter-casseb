@@ -3,6 +3,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import '../data/routes_data.dart';
 import '../services/routing_service.dart';
+import '../services/location_service.dart';
 
 class MapScreen extends StatefulWidget {
     const MapScreen({super.key});
@@ -43,8 +44,6 @@ class _MapScreenState extends State<MapScreen> {
 
           final rota = await RoutingService.getRoutes(RoutesData.catedralSe, RoutesData.basilica);
 
-          print("Rota recebida: ${rota?.length} pontos");
-
           setState(() {
             rotaAtual = rota ?? [];
           });
@@ -54,13 +53,25 @@ class _MapScreenState extends State<MapScreen> {
 
           final rota = await RoutingService.getRoutes(RoutesData.colegioGentil, RoutesData.catedralSe);
 
-          print("Rota recebida: ${rota?.length} pontos");
-
           setState(() {
             rotaAtual = rota ?? [];
           });
 
-        }, child: Text("Rota da Trasladação"),)
+        }, child: Text("Rota da Trasladação"),),
+        ElevatedButton(onPressed:() async {
+
+          final localizacao = await LocationService.getUserRoute();
+
+          if (localizacao != null) {
+
+            final rotaComeco = await RoutingService.getRoutes(localizacao, RoutesData.catedralSe);
+
+            setState(() {
+              rotaAtual = rotaComeco ?? [];
+            });
+          }          
+
+        }, child: Text("Rota para o ínicio do trajeto"),),
       ]
       ),
       );
